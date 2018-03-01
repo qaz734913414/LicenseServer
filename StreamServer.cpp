@@ -39,17 +39,29 @@ bool ClientCertAcceptable(PCCERT_CONTEXT pCertContext, const bool trusted)
    return NULL != pCertContext; // Meaning any certificate is fine, trusted or not, but there must be one
 }
 
-int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
+//检查程序是否以管理员权限运行
+bool CheckAdmin()
 {
 	if (!IsUserAdmin())
+	{
 		cout << "WARNING: The server is not running as an administrator." << endl;
-	const int Port = 41000;
+		return false;
+	}
+	return true;
+}
+
+//启动监听服务
+void StartListen(int listeningPort)
+{
 	unique_ptr<CListener> Listener(new CListener());
-   Listener->SelectServerCert = SelectServerCert;
-   Listener->ClientCertAcceptable = ClientCertAcceptable;
-	Listener->Initialize(Port);
-	cout << "Starting to listen on port " << Port << ", will find certificate for first connection." << endl;
-	Listener->BeginListening([](ISocketStream * const StreamSock){
+	Listener->SelectServerCert = SelectServerCert;
+	Listener->ClientCertAcceptable = ClientCertAcceptable;
+	Listener->Initialize(listeningPort);
+
+	cout << "Starting to listen on port " << listeningPort << ", will find certificate for first connection." << endl;
+
+	Listener->BeginListening([](ISocketStream * const StreamSock)
+	{
 		// This is the code to be executed each time a socket is opened
 		CString s;
 		char MsgText[100]; // Because the simple text messages we exchange are char not wchar
@@ -66,11 +78,21 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 		}
 		else
 			cout << "No response data received " << endl;
-      cout << "Exiting worker" << endl << endl;
+		cout << "Exiting worker" << endl << endl;
 	});
 
-	cout << "Listening, press any key to exit.\n" << endl;
+	cout << "Listening, press Enter to exit.\n" << endl;
 	getchar();
 	Listener->EndListening();
+}
+
+
+int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
+{
+	CheckAdmin();
+
+	const int Port = 41000;
+	StartListen(Port);
+
 	return 0;
 }

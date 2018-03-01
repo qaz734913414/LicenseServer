@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="Source Files\ServerNetwork">
+      <UniqueIdentifier>{7c94d577-0179-43f3-b943-1dece6f32a33}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -32,6 +35,9 @@
     <ClInclude Include="SSLHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -40,26 +46,29 @@
     <ClCompile Include="StreamServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="SSLServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Listener.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utilities.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Transport.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PassiveSock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SSLHelper.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\ServerNetwork</Filter>
     </ClCompile>
     <ClCompile Include="CreateCertificate.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\ServerNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="Listener.cpp">
+      <Filter>Source Files\ServerNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="PassiveSock.cpp">
+      <Filter>Source Files\ServerNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="SSLHelper.cpp">
+      <Filter>Source Files\ServerNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="Transport.cpp">
+      <Filter>Source Files\ServerNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities.cpp">
+      <Filter>Source Files\ServerNetwork</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
