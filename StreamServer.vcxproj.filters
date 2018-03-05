@@ -38,6 +38,9 @@
     <ClInclude Include="Server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ServerNetwork.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -68,6 +71,9 @@
       <Filter>Source Files\ServerNetwork</Filter>
     </ClCompile>
     <ClCompile Include="Utilities.cpp">
+      <Filter>Source Files\ServerNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerNetwork.cpp">
       <Filter>Source Files\ServerNetwork</Filter>
     </ClCompile>
   </ItemGroup>
