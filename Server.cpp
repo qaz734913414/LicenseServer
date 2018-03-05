@@ -10,7 +10,7 @@ void AddClient(int client_id)
 Server::Server(int listening_port)
 {
     m_listening_port = listening_port;
-    m_network.OnClientConnected = &AddClient;
+    //m_network.OnClientConnected = &AddClient;
 }
 
 
@@ -28,7 +28,6 @@ bool CheckAdmin()
     }
     return true;
 }
-
 
 //服务器启动时，读取已经载入的license的信息
 void LoadLicense(list<string> license_list, map<string, int> license_table)
@@ -54,8 +53,14 @@ int Server::SetListeningPort(int port)
     return 0;
 }
 
+void OnClientConnected(int id)
+{
+
+}
+
 bool Server::StartService()
 {
+    //m_network.StartListen(m_listening_port, OnClientConnected);
     m_network.StartListen(m_listening_port);
     return false;
 }

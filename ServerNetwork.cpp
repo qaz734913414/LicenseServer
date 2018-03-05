@@ -46,9 +46,10 @@ bool ClientCertAcceptable(PCCERT_CONTEXT pCertContext, const bool trusted)
 
 
 
-//void ServerNetwork::OnReceiveClientRequest(ISocketStream * const StreamSock)
+//std::function<void(ISocketStream * StreamSock)> OnReceiveClientRequest(ISocketStream * const StreamSock)
+////void ServerNetwork::OnReceiveClientRequest(ISocketStream * StreamSock)
 //{
-//    OnClientConnected(s_client_id++);
+//    //OnClientConnected(s_client_id++);
 //    // This is the code to be executed each time a socket is opened
 //    char MsgText[MAX_BUFFER]; // Because the simple text messages we exchange are char not wchar
 //
@@ -69,9 +70,13 @@ bool ClientCertAcceptable(PCCERT_CONTEXT pCertContext, const bool trusted)
 //        cout << "No response data received " << endl;
 //    cout << "Exiting worker" << endl << endl;
 //}
+void ttttt (int id)
+{
 
+}
 static int s_client_id = 0;
 //¿ªÊ¼¼àÌý¶Ë¿Ú
+//int ServerNetwork::StartListen(int port, FUN_CLIENT_CONNECTED func_callback)
 int ServerNetwork::StartListen(int port)
 {
     unique_ptr<CListener> Listener(new CListener());
@@ -81,10 +86,11 @@ int ServerNetwork::StartListen(int port)
 
     cout << "Starting to listen on port " << port << ", will find certificate for first connection." << endl;
 
-    //Listener->BeginListening(std::function<OnReceiveClientRequest(ISocketStream * const StreamSock)>);
+    //Listener->BeginListening(OnReceiveClientRequest);
     Listener->BeginListening([](ISocketStream * const StreamSock)
     {
-        OnClientConnected(s_client_id++);
+        ttttt(s_client_id++);
+        //func_callback(s_client_id++);
         // This is the code to be executed each time a socket is opened
         char MsgText[MAX_BUFFER]; // Because the simple text messages we exchange are char not wchar
 

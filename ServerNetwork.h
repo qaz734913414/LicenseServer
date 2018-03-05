@@ -14,6 +14,7 @@ using namespace std;
 
 #define MAX_BUFFER 65535
 //typedef void(*FUN_CLIENT_CONNECTED)(int);
+using FUN_CLIENT_CONNECTED = void(*)(int);
 
 class ServerNetwork
 {
@@ -30,9 +31,12 @@ private:
 
 
 public:
-    //static FUN_CLIENT_CONNECTED OnClientConnected;
-    std::function<void(int client_id)> OnClientConnected;
+    //std::function<void(int client_id)> OnClientConnected;
+    //OnReceiveClientRequest(ISocketStream * const StreamSock);
     void OnReceiveClientRequest(ISocketStream * const StreamSock);
+    //std::function<void(ISocketStream*StreamSock)> OnReceiveClientRequest(ISocketStream * const StreamSock);
+
+    //int StartListen(int port, FUN_CLIENT_CONNECTED func_callback);
     int StartListen(int port);
 
     //void SetRecvTimeout(int secs);
