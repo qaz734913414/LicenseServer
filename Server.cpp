@@ -60,12 +60,15 @@ bool Server::StartService()
 }
 
 
+void serverCallback(char* text)
+{
 
+}
 Server::Server(int listening_port)
 {
     m_listening_port = listening_port;
     //m_network.FuncSaveClient = &SaveClientInfo;
-    m_network.ClientTable = &m_client_table;
+    m_network.FuncCallback = (TestCallback)&serverCallback;
 }
 
 

@@ -102,7 +102,7 @@ int ServerNetwork::StartListen(int port)
             }
             else
             {
-                ttest = 123;
+                //FuncCallback(client_info);
                 ////协商成功，保存client信息
                 //ClientTableMap::iterator itor = ClientTable->find(client_info);
                 //if (itor != ClientTable->end())

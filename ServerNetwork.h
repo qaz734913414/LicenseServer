@@ -27,7 +27,7 @@ struct ClientInfo
 };
 
 typedef map<string, ClientInfo> ClientTableMap;
-
+typedef void(*TestCallback)(char*);
 
 class ServerNetwork
 {
@@ -45,9 +45,12 @@ public:
 
 public:
     //static ClientTableMap* ClientTable;
-    ClientTableMap* ClientTable;
+    //ClientTableMap* ClientTable;
+    
+    //尝试使用静态回调函数
+    static TestCallback FuncCallback;
+
     int StartListen(int port);
-    static int ttest;
 
     void SetRecvTimeout(int secs);
     void SetSendTimeout(int secs);
