@@ -7,17 +7,6 @@ void AddClient(int client_id)
 
 }
 
-Server::Server(int listening_port)
-{
-    m_listening_port = listening_port;
-    //m_network.OnClientConnected = &AddClient;
-}
-
-
-Server::~Server()
-{
-}
-
 //检查程序是否以管理员权限运行
 bool CheckAdmin()
 {
@@ -53,6 +42,11 @@ int Server::SetListeningPort(int port)
     return 0;
 }
 
+ClientTableMap Server::GetClientTable()
+{
+    return m_client_table;
+}
+
 void OnClientConnected(int id)
 {
 
@@ -63,4 +57,18 @@ bool Server::StartService()
     //m_network.StartListen(m_listening_port, OnClientConnected);
     m_network.StartListen(m_listening_port);
     return false;
+}
+
+
+
+Server::Server(int listening_port)
+{
+    m_listening_port = listening_port;
+    //m_network.FuncSaveClient = &SaveClientInfo;
+    m_network.ClientTable = &m_client_table;
+}
+
+
+Server::~Server()
+{
 }

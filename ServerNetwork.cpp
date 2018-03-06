@@ -45,70 +45,80 @@ bool ClientCertAcceptable(PCCERT_CONTEXT pCertContext, const bool trusted)
 }
 
 
-
-//std::function<void(ISocketStream * StreamSock)> OnReceiveClientRequest(ISocketStream * const StreamSock)
-////void ServerNetwork::OnReceiveClientRequest(ISocketStream * StreamSock)
-//{
-//    //OnClientConnected(s_client_id++);
-//    // This is the code to be executed each time a socket is opened
-//    char MsgText[MAX_BUFFER]; // Because the simple text messages we exchange are char not wchar
-//
-//                              //
-//    cout << "A connection has been made, worker started, sending hello" << endl;
-//    CString hello_msg = CString("Hello from server");
-//    StreamSock->Send(hello_msg, hello_msg.GetLength());
-//
-//    int len = StreamSock->Recv(MsgText, sizeof(MsgText) - 1);
-//    if (len > 0)
-//    {
-//        MsgText[len] = '\0'; // Terminate the string, for convenience
-//        cout << "Received " << MsgText << endl;
-//        cout << "Sending goodbye from server" << endl;
-//        StreamSock->Send("Goodbye from server", 19);
-//    }
-//    else
-//        cout << "No response data received " << endl;
-//    cout << "Exiting worker" << endl << endl;
-//}
-void ttttt (int id)
+//Server与Client连接建立后，执行以下的协商行为
+char* NegotiateWithClient(ISocketStream * StreamSock)
 {
+    cout << "-----新Socket已建立, 通信协商中-----" << endl;
 
+    char* MachineInfo = new char[MAX_BUFFER];
+
+    //Step 1：接收client的机器信息
+    cout << "接收client机器信息中... " << endl;
+    int len = StreamSock->Recv(MachineInfo, sizeof(MachineInfo) - 1);
+    if (len > 0)
+    {
+        MachineInfo[len] = '\0'; // Terminate the string, for convenience
+        cout << "收到消息： " << MachineInfo << endl;
+    }
+    else
+    {
+        cout << "未收到消息，退出... " << endl;
+        return false;
+    }
+   
+    //Step 2：向client返回确认信息
+    string hello_msg = string("Hello from server");
+    cout << "返回确认消息：" << hello_msg << endl;
+    len = StreamSock->Send(hello_msg.c_str(), hello_msg.length());
+    if (len < 0)
+    {
+        cout << "发送错误，退出... " << endl;
+        return false;
+    }
+
+    return MachineInfo;
 }
+
 static int s_client_id = 0;
 //开始监听端口
-//int ServerNetwork::StartListen(int port, FUN_CLIENT_CONNECTED func_callback)
 int ServerNetwork::StartListen(int port)
 {
-    unique_ptr<CListener> Listener(new CListener());
+    unique_ptr<CListener>Listener(new CListener());
     Listener->SelectServerCert = SelectServerCert;
     Listener->ClientCertAcceptable = ClientCertAcceptable;
     Listener->Initialize(port);
 
     cout << "Starting to listen on port " << port << ", will find certificate for first connection." << endl;
 
-    //Listener->BeginListening(OnReceiveClientRequest);
-    Listener->BeginListening([](ISocketStream * const StreamSock)
-    {
-        // This is the code to be executed each time a socket is opened
-        char MsgText[MAX_BUFFER]; // Because the simple text messages we exchange are char not wchar
-
-        //
-        cout << "A connection has been made, worker started, sending hello" << endl;
-        string hello_msg = string("Hello from server");
-        StreamSock->Send(hello_msg.c_str(), hello_msg.length());
-
-        int len = StreamSock->Recv(MsgText, sizeof(MsgText) - 1);
-        if (len > 0)
+    Listener->BeginListening
+    (
+        [](ISocketStream * const StreamSock)
         {
-            MsgText[len] = '\0'; // Terminate the string, for convenience
-            cout << "Received " << MsgText << endl;
-            cout << "Sending goodbye from server" << endl;
-            StreamSock->Send("Goodbye from server", 19);
+            /* 每次建立Socket连接，都会进入这里 */
+            char* client_info = NegotiateWithClient(StreamSock);
+            if (!client_info)
+            {
+                cout << "协商失败，关闭连接..." << endl;
+            }
+            else
+            {
+                ttest = 123;
+                ////协商成功，保存client信息
+                //ClientTableMap::iterator itor = ClientTable->find(client_info);
+                //if (itor != ClientTable->end())
+                //{
+                //    cout << "client(" << client_info << ") 已注册, 注册时间为：" << ((ClientInfo)(itor->second)).RegisterTime << endl;
+                //}
+                //else
+                //{
+                //    ClientInfo info;
+                //    strcpy_s(info.RegisterTime, "2018/03/6, 17:30");
+                //    strcpy_s(info.LastConnectTime, "2018/03/6, 18:30");
+                //    (*ClientTable)[string(client_info)] = info;
+                //}
+            }
         }
-        else
-            cout << "No response data received " << endl;
-        cout << "Exiting worker" << endl << endl;
-    });
+    );
 
     cout << "Listening, press Enter to exit.\n" << endl;
     getchar();

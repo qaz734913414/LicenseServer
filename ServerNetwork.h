@@ -2,7 +2,9 @@
 
 #include <atlconv.h>
 #include <string>
+#include <list>
 #include <iostream>
+#include <map>
 #include <iomanip>
 #include <memory>
 #include "stdafx.h"
@@ -13,8 +15,19 @@
 using namespace std;
 
 #define MAX_BUFFER 65535
-//typedef void(*FUN_CLIENT_CONNECTED)(int);
-using FUN_CLIENT_CONNECTED = void(*)(int);
+typedef void(*FUNC_SAVE_CLIENT)(char*);
+//using FUNC_CLIENT_CONNECTED = void(*)(int);
+#define MAX_TIME_LEN 16
+
+struct ClientInfo
+{
+    char RegisterTime[MAX_TIME_LEN];
+    char LastConnectTime[MAX_TIME_LEN];
+    list<string> TakenModule;
+};
+
+typedef map<string, ClientInfo> ClientTableMap;
+
 
 class ServerNetwork
 {
@@ -23,7 +36,7 @@ public:
     ~ServerNetwork();
 
 
-private:
+//private:
 
     //CActiveSock * pActiveSock;
     //CSSLClient * pSSLClient;
@@ -31,16 +44,13 @@ private:
 
 
 public:
-    //std::function<void(int client_id)> OnClientConnected;
-    //OnReceiveClientRequest(ISocketStream * const StreamSock);
-    void OnReceiveClientRequest(ISocketStream * const StreamSock);
-    //std::function<void(ISocketStream*StreamSock)> OnReceiveClientRequest(ISocketStream * const StreamSock);
-
-    //int StartListen(int port, FUN_CLIENT_CONNECTED func_callback);
+    //static ClientTableMap* ClientTable;
+    ClientTableMap* ClientTable;
     int StartListen(int port);
+    static int ttest;
 
-    //void SetRecvTimeout(int secs);
-    //void SetSendTimeout(int secs);
-    //void ConnectToServer(CString HostName, int Port);
-    //void SendData(CString content);
+    void SetRecvTimeout(int secs);
+    void SetSendTimeout(int secs);
+    void ConnectToServer(CString HostName, int Port);
+    void SendData(CString content);
 };
