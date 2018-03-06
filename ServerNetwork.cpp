@@ -89,15 +89,13 @@ int ServerNetwork::StartListen(int port)
     //Listener->BeginListening(OnReceiveClientRequest);
     Listener->BeginListening([](ISocketStream * const StreamSock)
     {
-        ttttt(s_client_id++);
-        //func_callback(s_client_id++);
         // This is the code to be executed each time a socket is opened
         char MsgText[MAX_BUFFER]; // Because the simple text messages we exchange are char not wchar
 
         //
         cout << "A connection has been made, worker started, sending hello" << endl;
-        CString hello_msg = CString("Hello from server");
-        StreamSock->Send(hello_msg, hello_msg.GetLength());
+        string hello_msg = string("Hello from server");
+        StreamSock->Send(hello_msg.c_str(), hello_msg.length());
 
         int len = StreamSock->Recv(MsgText, sizeof(MsgText) - 1);
         if (len > 0)
