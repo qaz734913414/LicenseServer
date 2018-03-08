@@ -4,6 +4,7 @@
 #include <list>
 #include <iostream>
 #include <map>
+#include <ctime>
 #include "ServerNetwork.h"
 using namespace std;
 
@@ -22,13 +23,14 @@ private:
 	char* m_data_buffer;				    //消息缓存
 	list<string> m_license_list;		    //保存导入的所有license文件名
 	map<string, int> m_license_resource;	//服务器读取的license的内容
-    ClientTableMap m_client_table; //client注册表
 
     void ReceiveFromServer();		//接收消息的方法
 	bool VerifyClient();			//验证客户端的身份
 	bool VerifyLicense();			//验证License的有效性
 
 public:
+    static ClientTableMap ClientTable; //client注册表
+
     void Init();
     int SetListeningPort(int port); //设置服务器监听的端口
 
@@ -39,4 +41,3 @@ public:
 
     //void SaveClientInfo(char*);
 };
-

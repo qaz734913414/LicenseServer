@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "ServerNetwork.h"
 
+FUNC_CLIENT_CONNECTED_CALLBACK ServerNetwork::ClientConnectedCallback = NULL;
 
 ServerNetwork::ServerNetwork()
 {
+    //int ServerNetwork::numtest = 0;
 }
 
 
@@ -46,11 +48,13 @@ bool ClientCertAcceptable(PCCERT_CONTEXT pCertContext, const bool trusted)
 
 
 //Server与Client连接建立后，执行以下的协商行为
+//协商通过，则返回client的MachineInfo
+//协商失败，则返回空
 char* NegotiateWithClient(ISocketStream * StreamSock)
 {
     cout << "-----新Socket已建立, 通信协商中-----" << endl;
 
-    char* MachineInfo = new char[MAX_BUFFER];
+    char MachineInfo[MAX_BUFFER];
 
     //Step 1：接收client的机器信息
     cout << "接收client机器信息中... " << endl;
@@ -79,7 +83,6 @@ char* NegotiateWithClient(ISocketStream * StreamSock)
     return MachineInfo;
 }
 
-static int s_client_id = 0;
 //开始监听端口
 int ServerNetwork::StartListen(int port)
 {
@@ -95,27 +98,25 @@ int ServerNetwork::StartListen(int port)
         [](ISocketStream * const StreamSock)
         {
             /* 每次建立Socket连接，都会进入这里 */
+
+            //Step 1: 认证client身份
             char* client_info = NegotiateWithClient(StreamSock);
             if (!client_info)
             {
                 cout << "协商失败，关闭连接..." << endl;
+                return;
             }
-            else
+
+            //Step 2: 连接成功，注册client信息
+            ClientRegState r = ClientConnectedCallback(client_info);
+
+            if (r = REGISTERRED)
             {
-                //FuncCallback(client_info);
-                ////协商成功，保存client信息
-                //ClientTableMap::iterator itor = ClientTable->find(client_info);
-                //if (itor != ClientTable->end())
-                //{
-                //    cout << "client(" << client_info << ") 已注册, 注册时间为：" << ((ClientInfo)(itor->second)).RegisterTime << endl;
-                //}
-                //else
-                //{
-                //    ClientInfo info;
-                //    strcpy_s(info.RegisterTime, "2018/03/6, 17:30");
-                //    strcpy_s(info.LastConnectTime, "2018/03/6, 18:30");
-                //    (*ClientTable)[string(client_info)] = info;
-                //}
+
+            }
+            else if (r = FIRST_REGISTER)
+            {
+
             }
         }
     );

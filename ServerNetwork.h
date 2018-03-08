@@ -16,18 +16,22 @@ using namespace std;
 
 #define MAX_BUFFER 65535
 typedef void(*FUNC_SAVE_CLIENT)(char*);
-//using FUNC_CLIENT_CONNECTED = void(*)(int);
-#define MAX_TIME_LEN 16
+#define TIME_STRING_LEN 64
 
 struct ClientInfo
 {
-    char RegisterTime[MAX_TIME_LEN];
-    char LastConnectTime[MAX_TIME_LEN];
+    char* RegisterTime;
+    char* LastConnectTime;
     list<string> TakenModule;
 };
 
+enum ClientRegState {
+    FIRST_REGISTER,
+    REGISTERRED
+};
+
 typedef map<string, ClientInfo> ClientTableMap;
-typedef void(*TestCallback)(char*);
+typedef ClientRegState(*FUNC_CLIENT_CONNECTED_CALLBACK)(char*);
 
 class ServerNetwork
 {
@@ -44,14 +48,9 @@ public:
 
 
 public:
-    //static ClientTableMap* ClientTable;
-    //ClientTableMap* ClientTable;
-    
-    //尝试使用静态回调函数
-    static TestCallback FuncCallback;
+    static FUNC_CLIENT_CONNECTED_CALLBACK ClientConnectedCallback;   //新的socket建立后，执行此回调
 
     int StartListen(int port);
-
     void SetRecvTimeout(int secs);
     void SetSendTimeout(int secs);
     void ConnectToServer(CString HostName, int Port);

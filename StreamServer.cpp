@@ -7,7 +7,6 @@
 
 using namespace std;
 
-
 int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 {
 	const int Port = 41000;
