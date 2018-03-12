@@ -32,6 +32,7 @@ enum ClientRegState {
 
 typedef map<string, ClientInfo> ClientTableMap;
 typedef ClientRegState(*FUNC_CLIENT_CONNECTED_CALLBACK)(char*);
+typedef char*(*FUNC_CLIENT_APPLY_LICENSE_CALLBACK)(char*);
 
 class ServerNetwork
 {
@@ -49,6 +50,7 @@ public:
 
 public:
     static FUNC_CLIENT_CONNECTED_CALLBACK ClientConnectedCallback;   //新的socket建立后，执行此回调
+    static FUNC_CLIENT_APPLY_LICENSE_CALLBACK ClientApplyLicenseCallback;   //新的socket建立后，执行此回调
 
     int StartListen(int port);
     void SetRecvTimeout(int secs);

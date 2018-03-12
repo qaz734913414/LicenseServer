@@ -2,6 +2,7 @@
 #include "ServerNetwork.h"
 
 FUNC_CLIENT_CONNECTED_CALLBACK ServerNetwork::ClientConnectedCallback = NULL;
+FUNC_CLIENT_APPLY_LICENSE_CALLBACK ServerNetwork::ClientApplyLicenseCallback = NULL;
 
 ServerNetwork::ServerNetwork()
 {
@@ -54,11 +55,11 @@ char* NegotiateWithClient(ISocketStream * StreamSock)
 {
     cout << "-----新Socket已建立, 通信协商中-----" << endl;
 
-    char MachineInfo[MAX_BUFFER];
+    char MachineInfo[MAX_BUFFER]{};
 
     //Step 1：接收client的机器信息
     cout << "接收client机器信息中... " << endl;
-    int len = StreamSock->Recv(MachineInfo, sizeof(MachineInfo) - 1);
+    int len = StreamSock->Recv(MachineInfo, MAX_BUFFER);
     if (len > 0)
     {
         MachineInfo[len] = '\0'; // Terminate the string, for convenience
@@ -107,17 +108,46 @@ int ServerNetwork::StartListen(int port)
                 return;
             }
 
+            cout << "**协商成功**" << endl;
+
             //Step 2: 连接成功，注册client信息
             ClientRegState r = ClientConnectedCallback(client_info);
 
-            if (r = REGISTERRED)
+            if (r == REGISTERRED)
             {
+                //若此client已经注册过，则进入这里
+                char RecvBuffer[MAX_BUFFER]{};
+                cout << "等待client请求中... " << endl;
+                int len = StreamSock->Recv(RecvBuffer, MAX_BUFFER);
 
+                string strMsg = string(RecvBuffer);
+                string::size_type pos = strMsg.find("Heartbeat");
+                if (pos != string::npos)
+                {
+                    //对已经注册过的client，若此消息是心跳包，返回字符串"HeartbeatConfirmed"，
+                    cout << "收到client心跳包： " << RecvBuffer << endl;
+                    
+                    string retString = "HeartbeatConfirmed";
+                    cout << "回应client心跳包： " << retString << endl;
+                    len = StreamSock->Send(retString.c_str(), retString.length());
+                }
             }
-            else if (r = FIRST_REGISTER)
+            else if (r == FIRST_REGISTER)
             {
+                //对初次注册的client，准备接受license的请求
+                char RecvBuffer[MAX_BUFFER]{};
+                cout << "等待client请求license... " << endl;
 
+                int len = StreamSock->Recv(RecvBuffer, MAX_BUFFER);
+
+                cout << "收到client license请求： " << RecvBuffer << endl;
+                string result = ClientApplyLicenseCallback(RecvBuffer);
+
+                cout << "回应client license请求： " << result << endl;
+                len = StreamSock->Send(result.c_str(), result.length());
             }
+
+            StreamSock->Disconnect();
         }
     );
 

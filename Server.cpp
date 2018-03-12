@@ -55,7 +55,6 @@ void OnClientConnected(int id)
 
 bool Server::StartService()
 {
-    //m_network.StartListen(m_listening_port, OnClientConnected);
     m_network.StartListen(m_listening_port);
     return false;
 }
@@ -72,7 +71,9 @@ char* ConvertTimeFormat(char* rs, int num)
     }
     return rs;
 }
-int serverCallback(char* client_info)
+
+//当有client连入时，调用此回调进行注册
+ClientRegState clientConnectedCallback(char* client_info)
 {
     //协商成功，保存client信息
 
@@ -97,6 +98,7 @@ int serverCallback(char* client_info)
         (itor->second).LastConnectTime = strtime;
         sprintf((itor->second).LastConnectTime, "%s", strtime);
         cout << "client(" << client_info << ") 已注册, 注册时间为：" << (itor->second).RegisterTime << endl;
+        cout << "最近连接时间为：" << (itor->second).LastConnectTime << endl;
         return REGISTERRED;
     }
     else
@@ -112,11 +114,17 @@ int serverCallback(char* client_info)
     }
 }
 
+//当有client申请license时，调用此回调验证申请有效性
+char* clientApplyLicenseCallback(char* apply_msg)
+{
+    return "1/0";
+}
 
 Server::Server(int listening_port)
 {
     m_listening_port = listening_port;
-    ServerNetwork::ClientConnectedCallback = (FUNC_CLIENT_CONNECTED_CALLBACK)&serverCallback;
+    ServerNetwork::ClientConnectedCallback = (FUNC_CLIENT_CONNECTED_CALLBACK)&clientConnectedCallback;
+    ServerNetwork::ClientApplyLicenseCallback = (FUNC_CLIENT_APPLY_LICENSE_CALLBACK)&clientApplyLicenseCallback;
 }
 
 
