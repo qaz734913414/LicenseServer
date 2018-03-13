@@ -131,6 +131,9 @@
     <ClCompile Include="Transport.cpp" />
     <ClCompile Include="Utilities.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Debug\license.lic" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

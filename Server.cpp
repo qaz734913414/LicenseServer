@@ -19,15 +19,60 @@ bool CheckAdmin()
     return true;
 }
 
+//获取应用程序根目录
+CString GetAppPath()
+{
+    TCHAR modulePath[MAX_PATH];
+    int bytes = GetModuleFileName(NULL, modulePath, MAX_PATH);
+    CString strModulePath(modulePath);
+    strModulePath = strModulePath.Left(strModulePath.ReverseFind(_T('\\')));
+    return strModulePath;
+}
+
+//读取XML内容并保存到m_license_resource
+bool ReadXmlFile(string szFileName)
+{//读取Xml文件，并遍历
+    try
+    {
+        CString appPath = GetAppPath();
+        string seperator = "\\";
+        string fullPath = string(CT2A(appPath)) + seperator + szFileName;
+        
+        //创建一个XML的文档对象。
+        TiXmlDocument *myDocument = new TiXmlDocument(fullPath.c_str());
+        myDocument->LoadFile();
+        //获得根元素，即Persons。
+        TiXmlElement *RootElement = myDocument->RootElement();
+        //输出根元素名称，即输出Persons。
+        cout << RootElement->Value() << endl;
+        //获得第一个Person节点。
+        TiXmlElement *FirstPerson = RootElement->FirstChildElement();
+        //获得第一个Person的name节点和age节点和ID属性。
+        TiXmlElement *NameElement = FirstPerson->FirstChildElement();
+        TiXmlElement *AgeElement = NameElement->NextSiblingElement();
+        TiXmlAttribute *IDAttribute = FirstPerson->FirstAttribute();
+        //输出第一个Person的name内容，即周星星；age内容，即；ID属性，即。
+        cout << NameElement->FirstChild()->Value() << endl;
+        cout << AgeElement->FirstChild()->Value() << endl;
+        cout << IDAttribute->Value() << endl;
+    }
+    catch (string& e)
+    {
+        return false;
+    }
+    return true;
+}
+
 //服务器启动时，读取已经载入的license的信息
-void LoadLicense(list<string> license_list, map<string, int> license_table)
+void LoadLicense(list<string> license_list, MAP_LICENSE_RESOURCE license_table)
 {
     std::list<string>::iterator iter;
     for (iter = license_list.begin(); iter != license_list.end(); iter++)
     {
-         //TODO
-        
+        //string XMLPath = iter->data;
+        //ReadXmlFile("info.xml");
     }
+    ReadXmlFile("info.xml");
 }
 
 void Server::Init()
@@ -46,6 +91,13 @@ int Server::SetListeningPort(int port)
 ClientTableMap Server::GetClientTable()
 {
     return ClientTable;
+}
+
+//从UI导入License的方法
+void Server::ImportLicense()
+{
+    //TODO：将新导入的license内容添加到m_license_resource，
+    //并将新license的路径保存到m_license_list
 }
 
 void OnClientConnected(int id)
@@ -78,7 +130,7 @@ ClientRegState clientConnectedCallback(char* client_info)
     //协商成功，保存client信息
 
     time_t nowtime = time(NULL); //获取日历时间  
-    char strtime[TIME_STRING_LEN];
+    char strtime[TIME_STRING_LEN]{};
     tm *ltm = localtime(&nowtime);
     char mon[3];
     char day[3];

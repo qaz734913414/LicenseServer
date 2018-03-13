@@ -15,7 +15,7 @@
 using namespace std;
 
 #define MAX_BUFFER 65535
-typedef void(*FUNC_SAVE_CLIENT)(char*);
+//typedef void(*FUNC_SAVE_CLIENT)(char*);
 #define TIME_STRING_LEN 64
 
 struct ClientInfo

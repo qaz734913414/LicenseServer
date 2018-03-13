@@ -104,4 +104,7 @@
       <Filter>Source Files\TinyXML</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Debug\license.lic" />
+  </ItemGroup>
 </Project>
