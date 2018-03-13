@@ -12,34 +12,49 @@
     <Filter Include="Source Files\ServerNetwork">
       <UniqueIdentifier>{7c94d577-0179-43f3-b943-1dece6f32a33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ServerNetwork">
+      <UniqueIdentifier>{d320ee3c-bd9e-4119-8b62-2beb304f653f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\TinyXML">
+      <UniqueIdentifier>{1849aca8-47ec-4735-8328-bc94e4b15077}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\TinyXML">
+      <UniqueIdentifier>{3f1f830f-6cba-4cd0-8d5e-8734baf9098f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ISocketStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SSLServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Listener.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Transport.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PassiveSock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SSLHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ISocketStream.h">
+      <Filter>Header Files\ServerNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="Listener.h">
+      <Filter>Header Files\ServerNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="PassiveSock.h">
+      <Filter>Header Files\ServerNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="SSLHelper.h">
+      <Filter>Header Files\ServerNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="SSLServer.h">
+      <Filter>Header Files\ServerNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="Transport.h">
+      <Filter>Header Files\ServerNetwork</Filter>
+    </ClInclude>
     <ClInclude Include="ServerNetwork.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\ServerNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="tinystr.h">
+      <Filter>Header Files\TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml.h">
+      <Filter>Header Files\TinyXML</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -75,6 +90,18 @@
     </ClCompile>
     <ClCompile Include="ServerNetwork.cpp">
       <Filter>Source Files\ServerNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="tinystr.cpp">
+      <Filter>Source Files\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml.cpp">
+      <Filter>Source Files\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxmlerror.cpp">
+      <Filter>Source Files\TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxmlparser.cpp">
+      <Filter>Source Files\TinyXML</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

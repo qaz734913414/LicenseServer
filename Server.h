@@ -6,6 +6,9 @@
 #include <map>
 #include <ctime>
 #include "ServerNetwork.h"
+#include "tinyxml.h"
+#include "tinystr.h"
+
 using namespace std;
 
 #define MAX_Client_NAME_LEN 256
