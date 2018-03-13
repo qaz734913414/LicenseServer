@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "Server.h"
 
+//init static members
 ClientTableMap Server::ClientTable = {};
+int Server::m_listening_port = 40000;
+MAP_LICENSE_RESOURCE Server::m_license_resource = map<string, LicModInfo>{};
 
 void AddClient(int client_id)
 {
@@ -29,32 +32,104 @@ CString GetAppPath()
     return strModulePath;
 }
 
-//读取XML内容并保存到m_license_resource
-bool ReadXmlFile(string szFileName)
-{//读取Xml文件，并遍历
+//读取license内容并保存到m_license_resource,license格式为：
+//SERVER [ENCRYPTED_ID] [PORT(optional)]
+//INCREMENT [MODULE_NAME] [MODULE_ID] [VERSION] [EXPIRE_DATE] [COUNT] ISSUED=[DATE] SIGN="[SIGN_INFO]"
+bool ReadLicenseFile(string fullPath, MAP_LICENSE_RESOURCE* license_table)
+{
     try
     {
-        CString appPath = GetAppPath();
-        string seperator = "\\";
-        string fullPath = string(CT2A(appPath)) + seperator + szFileName;
-        
-        //创建一个XML的文档对象。
-        TiXmlDocument *myDocument = new TiXmlDocument(fullPath.c_str());
-        myDocument->LoadFile();
-        //获得根元素，即Persons。
-        TiXmlElement *RootElement = myDocument->RootElement();
-        //输出根元素名称，即输出Persons。
-        cout << RootElement->Value() << endl;
-        //获得第一个Person节点。
-        TiXmlElement *FirstPerson = RootElement->FirstChildElement();
-        //获得第一个Person的name节点和age节点和ID属性。
-        TiXmlElement *NameElement = FirstPerson->FirstChildElement();
-        TiXmlElement *AgeElement = NameElement->NextSiblingElement();
-        TiXmlAttribute *IDAttribute = FirstPerson->FirstAttribute();
-        //输出第一个Person的name内容，即周星星；age内容，即；ID属性，即。
-        cout << NameElement->FirstChild()->Value() << endl;
-        cout << AgeElement->FirstChild()->Value() << endl;
-        cout << IDAttribute->Value() << endl;
+        char buffer[READ_FILE_BUFFER_SIZE];
+        fstream licFile;
+        licFile.open(fullPath, ios::in);
+
+        cout << "--- license 路径:---" << fullPath << endl;
+
+        //----Step 1：解析license头部----
+        cout << "检查 license 头部: " << endl;
+        licFile.getline(buffer, READ_FILE_BUFFER_SIZE, '\n');
+        const char *delim = " ";    //分割符为空格
+        char *p;
+        int r;
+
+        //检查"SERVER"
+        p = strtok(buffer, delim);
+        cout << p << endl;
+        r = strcmp(p, "SERVER");
+        if (r != 0) return false;
+        //检查[ENCRYPTED_ID]
+        p = strtok(NULL, delim);
+        cout << p << endl;
+        bool valid = Server::CheckEncryptedString(p, "shoud_be_machine_id");
+        if (!valid) return false;
+        //读取port（可选项）
+        p = strtok(NULL, delim);
+        if (p)
+        {
+            int port = atoi(p);
+            if (port >= 0)
+            {
+                cout << port << endl;
+                bool valid = Server::SetListeningPort(port);
+            }
+        }
+
+        //----Step 2：读取具体的模块信息----
+        while (!licFile.eof())
+        {
+            string modID;
+            LicModInfo cinfo;
+            licFile.getline(buffer, READ_FILE_BUFFER_SIZE, '\n');
+            p = strtok(buffer, delim);
+            if (!p) continue;
+            cout << "increment: " << p << endl;
+
+            p = strtok(NULL, delim);
+            cinfo.name = p;
+            if (!p) continue;
+            cout << "mod name: " << p << endl;
+
+            p = strtok(NULL, delim);
+            modID = p;
+            if (!p) continue;
+            cout << "mod id: " << p << endl;
+
+            p = strtok(NULL, delim);
+            cinfo.version = p;
+            if (!p) continue;
+            cout << "ver: " << p << endl;
+
+            p = strtok(NULL, delim);
+            cinfo.expire_date = p;
+            if (!p) continue;
+            cout << "exp date: " << p << endl;
+
+            p = strtok(NULL, delim);
+            int t = strcmp(p, "uncounted");
+            if (t == 0)
+            { 
+                cinfo.count = -1;
+            }
+            else
+            {
+                cinfo.count = atoi(p);
+            }
+            if (!p) continue;
+            cout << "count: " << p << endl;
+
+            p = strtok(NULL, delim);
+            cinfo.issue_date = p;
+            if (!p) continue;
+            cout << "iss date: " << p << endl;
+
+            p = strtok(NULL, delim);
+            cinfo.sign = p;
+            if (!p) continue;
+            cout << "sign: " << p << endl;
+
+            license_table->insert(std::pair<string, LicModInfo>(modID, cinfo));
+        }
+        licFile.close();
     }
     catch (string& e)
     {
@@ -64,22 +139,28 @@ bool ReadXmlFile(string szFileName)
 }
 
 //服务器启动时，读取已经载入的license的信息
-void LoadLicense(list<string> license_list, MAP_LICENSE_RESOURCE license_table)
+void LoadLicense(list<string>* license_list, MAP_LICENSE_RESOURCE* license_table)
 {
     std::list<string>::iterator iter;
-    for (iter = license_list.begin(); iter != license_list.end(); iter++)
+    for (iter = license_list->begin(); iter != license_list->end(); iter++)
     {
         //string XMLPath = iter->data;
         //ReadXmlFile("info.xml");
     }
-    ReadXmlFile("info.xml");
+    
+    //使用临时的license地址
+    CString appPath = GetAppPath();
+    string seperator = "\\";
+    string fullPath = string(CT2A(appPath)) + seperator + "license.lic";
+
+    ReadLicenseFile(fullPath, license_table);
 }
 
 void Server::Init()
 {
     CheckAdmin();
 
-    LoadLicense(m_license_list, m_license_resource);
+    LoadLicense(&m_license_list, &m_license_resource);
 }
 
 int Server::SetListeningPort(int port)
@@ -109,6 +190,22 @@ bool Server::StartService()
 {
     m_network.StartListen(m_listening_port);
     return false;
+}
+
+char* ResolveString(char* encryptedString)
+{
+    char rstr[LICENSE_INFO_BUFFER_SIZE]{};
+    //todo： 用公钥解析字符串
+
+    return rstr;
+}
+
+bool Server::CheckEncryptedString(char * encryptedString, char * expectedString)
+{
+    char* rstr = ResolveString(encryptedString);
+    //todo: 比较两个字符串的正确性
+
+    return true;
 }
 
 char* ConvertTimeFormat(char* rs, int num)
@@ -166,10 +263,40 @@ ClientRegState clientConnectedCallback(char* client_info)
     }
 }
 
+////检查请求的Module是否有license剩余
+//bool CheckLicenseCount(string modName)
+//{
+//
+//}
 //当有client申请license时，调用此回调验证申请有效性
-char* clientApplyLicenseCallback(char* apply_msg)
+string clientApplyLicenseCallback(char* apply_msg)
 {
-    return "1/0";
+    //string substring = apply_msg;
+    string retValue;
+    char* substring = strtok(apply_msg, LIC_APPLY_STR_DELIMITER);
+    do
+    {
+        if (!substring) continue;
+
+        //substring = substring.substr(0, substring.find(LIC_APPLY_STR_DELIMITER));
+        if (Server::m_license_resource[substring].count > 0)
+        {
+            Server::m_license_resource[substring].count--;
+            retValue += "1";
+        }
+        else if (Server::m_license_resource[substring].count == -1)
+        {
+            retValue += "1";
+        }
+        else
+        {
+            retValue += "0";
+        }
+       
+        substring = strtok(NULL, LIC_APPLY_STR_DELIMITER);
+    } while (substring && strlen(substring) >= 0);
+
+    return retValue;
 }
 
 Server::Server(int listening_port)

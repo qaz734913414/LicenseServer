@@ -5,13 +5,28 @@
 #include <iostream>
 #include <map>
 #include <ctime>
+#include <fstream>
 #include "ServerNetwork.h"
 #include "tinyxml.h"
 
 using namespace std;
 
-#define MAX_Client_NAME_LEN 256
-typedef map<string, int> MAP_LICENSE_RESOURCE;
+#define MAX_CLIENT_NAME_LEN 256
+#define READ_FILE_BUFFER_SIZE 512
+#define LICENSE_INFO_BUFFER_SIZE 512
+#define PUB_LICKEY "tempPubKey"
+#define LIC_APPLY_STR_DELIMITER "/"
+
+struct LicModInfo
+{
+    string name;
+    string version;
+    string expire_date;
+    int count;              //值小于0时，表示不限数量
+    string issue_date;
+    string sign;
+};
+typedef map<string, LicModInfo> MAP_LICENSE_RESOURCE;
 
 class Server
 {
@@ -20,25 +35,19 @@ public:
 	~Server();
 
 private:
-    int m_listening_port;
+    static int m_listening_port;                //server监听的端口
 	ServerNetwork m_network;			        //网络连接管理
-	char* m_data_buffer;				        //消息缓存
 	list<string> m_license_list;		        //保存导入的所有license文件名
-    MAP_LICENSE_RESOURCE m_license_resource;	//服务器读取的license的内容
-
-    void ReceiveFromServer();       //接收消息的方法
-	bool VerifyClient();            //验证客户端的身份
-	bool VerifyLicense();           //验证License的有效性
 
 public:
-    static ClientTableMap ClientTable;  //client注册表
-
     void Init();                        //检查服务器运行权限，载入license
-    int SetListeningPort(int port);     //设置服务器监听的端口
-
-    ClientTableMap GetClientTable();
 	void ImportLicense();               //导入License的方法
 	bool StartService();                //启动服务
 	bool StopService();                 //停止服务
+    ClientTableMap GetClientTable();
 
+    static MAP_LICENSE_RESOURCE m_license_resource;	//服务器读取的license的内容
+    static ClientTableMap ClientTable;              //client注册表
+    static int SetListeningPort(int port);          //设置服务器监听的端口
+    static bool CheckEncryptedString(char*, char*); //检查签名的有效性
 };

@@ -32,7 +32,7 @@ enum ClientRegState {
 
 typedef map<string, ClientInfo> ClientTableMap;
 typedef ClientRegState(*FUNC_CLIENT_CONNECTED_CALLBACK)(char*);
-typedef char*(*FUNC_CLIENT_APPLY_LICENSE_CALLBACK)(char*);
+typedef string(*FUNC_CLIENT_APPLY_LICENSE_CALLBACK)(char*);
 
 class ServerNetwork
 {
